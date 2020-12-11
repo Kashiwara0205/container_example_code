@@ -1,13 +1,14 @@
 import sequtils, sugar
-import ../common/model
+import ../models/account
+import ../models/student
 
 type VecContainer = object
-  student_model*: model.StudentModel
-  account_model*: model.AccoutModel
+  student_model*: student.StudentModel
+  account_model*: account.AccoutModel
 
 proc createVecCntainer():VecContainer =
-  let student_model = model.StudentModel()
-  let account_model = model.AccoutModel()
+  let student_model = student.StudentModel()
+  let account_model = account.AccoutModel()
 
   return VecContainer(student_model: student_model, account_model: account_model)
 
