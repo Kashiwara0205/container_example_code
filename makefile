@@ -10,3 +10,6 @@ compile:
 
 	nim compile ./service_locator/main.nim
 	./service_locator/main
+
+	nim compile ./dependency_injection_container/main.nim
+	./dependency_injection_container/main

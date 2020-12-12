@@ -24,6 +24,7 @@ type StudentRecord = ref object
   pref: string
 
 type StudentService = ref object
+  account_service: AccoutService
 
 method getAll*(service: StudentService): seq[StudentRecord] {.base.} =
   let students = @[
@@ -35,16 +36,31 @@ method getAll*(service: StudentService): seq[StudentRecord] {.base.} =
   return students
 
 method getUnregisteredStudentName(student_service :StudentService): seq[string] {.base.} =
-  let account_service = AccoutService()
-  let account_names = account_service.getAll().map(m => m.name)
+  let account_names = student_service.account_service.getAll().map(m => m.name)
   let unregistered_students = 
     student_service.getAll()
-                   .map(m => m.name)
-                   .filter(f => not account_names.anyIt(it == f))
+                    .map(m => m.name)
+                    .filter(f => not account_names.anyIt(it == f))
 
   return unregistered_students
 
+type DIContainer = object
+  student_service: StudentService
+
+proc createDIContainer(): DIContainer =
+  return DIContainer()
+
+proc resolve(di_container: DIContainer, name: string): StudentService =
+  case name: 
+    of "Student":
+      let account_service = AccoutService()
+      let student_service = StudentService(account_service: account_service)
+      return student_service
+    else: discard
+
 block application:
-  # - getUnregisteredStudentNameにAccoutServiceが使われており、依存が発生している
-  let student_service = StudentService()
-  assert @["B学生", "C学生"] == student_service.getUnregisteredStudentName()
+  # DIを使って引数が多くなってきたときに使う
+  # 綺麗に見える
+  let di_container = createDIContainer()
+  # 本来resolveにはintefaceを利用
+  assert @["B学生", "C学生"] == di_container.resolve("Student").getUnregisteredStudentName()

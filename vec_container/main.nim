@@ -51,7 +51,10 @@ method getUnregisteredStudentName(student_service :StudentService): seq[string] 
 
   return unregistered_students
 
-block test:
+block application:
+  # - ただの入れ物
+  # - service_locatorのようにinterfaceを作って動的に組み合わせるわけではないので比較的複雑度は低い
+  # - service_locatorと同じような依存問題は発生する(used_services_container.account_serviceのところ)
   let used_services_container = createVecContainer()
   let student_service = StudentService(used_services_container: used_services_container)
   assert @["B学生", "C学生"] == student_service.getUnregisteredStudentName()

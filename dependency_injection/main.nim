@@ -44,7 +44,12 @@ method getUnregisteredStudentName(student_service :StudentService): seq[string] 
 
   return unregistered_students
 
-block test:
+block application:
+  # DIとは「依存の注入」のこと。
+  # 依存の注入という言葉が使われている書籍もあるので注意する
+  # - StudentServiceを生成する際にAccountServiceを渡す
+  # - この形にするとMockを使ったテストが書きやすい
+  # - account_test_serviceみたいなやつも差し込める
   let account_service = AccoutService()
   let student_service = StudentService(account_service: account_service)
   assert @["B学生", "C学生"] == student_service.getUnregisteredStudentName()

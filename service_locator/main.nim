@@ -52,7 +52,7 @@ method getAll*(service: StudentService): seq[StudentRecord] {.base.} =
   return students
 
 method getUnregisteredStudentName(student_service :StudentService): seq[string] {.base.} =
-  # 本来はinterfaceを使って呼び出し
+  # - 本来、Resolveにはinterfaceを利用
   let account_names = student_service.service_locator.resolve("Account").getAll().map(m => m.name)
   let unregistered_students = 
     student_service.getAll()
@@ -61,10 +61,15 @@ method getUnregisteredStudentName(student_service :StudentService): seq[string] 
 
   return unregistered_students
 
-block test:
-  # 本来はinterfaceを使って定義する
-  # なのでstringを使って定義するわけではない
+block application:
+  # - infetfaceとKyeValueを使って動的に作るVecContainerみたいな感じ
+  # - 複雑な部分として、以下があげられる
+  #   - infetfaceとKyeValueを使って動的に作る部分
+  #   - service_locatorクラスへの依存が発生する（ service_locator.resolve("Account")の箇所 ）
+  #   - Mockを使ったテストを実施するときにセットアップ部分が複雑になる
+  #   - intefcateを使って動的に作るのでオブジェクトの関係が見えにくい
   let service_locator = createServiceLocater()
+  # - 本来、Registerにはinterfaceを利用
   service_locator.register("Account")
   let student_service = StudentService(service_locator: service_locator)
   assert @["B学生", "C学生"] == student_service.getUnregisteredStudentName()
