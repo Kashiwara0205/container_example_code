@@ -22,12 +22,12 @@ proc createServiceLocater(): ServiceLocater = ServiceLocater()
 
 method register(service_locater: ServiceLocater, name: string): void {.base.} =
   case name: 
-    of "Account":  service_locater.account_service = AccoutService()
+    of "Account": discard
     else: discard
 
 method resolve(service_locater: ServiceLocater, name: string): AccoutService {.base.} =
   case name: 
-    of "Account": return service_locater.account_service
+    of "Account": return AccoutService()
     else: discard
 
 type Sex {.pure.} = enum
