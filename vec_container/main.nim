@@ -1,29 +1,57 @@
 import sequtils, sugar
-import ../models/account
-import ../models/student
+
+type AccoutRecord = ref object
+  id: int
+  name*: string
+  password: string
+
+type AccoutService = ref object
+method getAll(service: AccoutService): seq[AccoutRecord] {.base.} =
+  let acounts = @[
+    AccoutRecord(id:1, name:"A学生", password: "fevxvbtr4"),
+    AccoutRecord(id:2, name:"D学生", password: "sfref4erf"),
+  ]
+
+  return acounts
 
 type VecContainer = object
-  student_model*: student.StudentModel
-  account_model*: account.AccoutModel
+  account_service: AccoutService
 
-proc createVecCntainer():VecContainer =
-  let student_model = student.StudentModel()
-  let account_model = account.AccoutModel()
+proc createVecContainer(): VecContainer =
+  let account_service = AccoutService()
+  return VecContainer(account_service: account_service)
 
-  return VecContainer(student_model: student_model, account_model: account_model)
+type Sex {.pure.} = enum
+  MALE, FEMALE
 
-type ApplicationService = ref object
-  vec_container: VecContainer
+type StudentRecord* = ref object
+  name*: string
+  age: int
+  sex: Sex
+  pref: string
 
-method getUnregisteredStudentName(service :ApplicationService): seq[string]  {.base.} =
-  let account_names = service.vec_container.account_model.getAll().map(m => m.name)
+type StudentService = ref object
+  used_services_container: VecContainer
+
+method getAll(service: StudentService): seq[StudentRecord] {.base.} =
+  let students = @[
+    StudentRecord(name:"A学生", age: 12, sex: Sex.MALE, pref: "北海道"),
+    StudentRecord(name:"B学生", age: 14, sex: Sex.MALE, pref: "秋田県"),
+    StudentRecord(name:"C学生", age: 11,sex: Sex.MALE, pref: "青森県")
+  ]
+
+  return students
+
+method getUnregisteredStudentName(student_service :StudentService): seq[string] {.base.} =
+  let account_names = student_service.used_services_container.account_service.getAll().map(m => m.name)
   let unregistered_students = 
-    service.vec_container.student_model.getAll()
-                         .map(m => m.name)
-                         .filter(f => not account_names.anyIt(it == f))
+    student_service.getAll()
+                   .map(m => m.name)
+                   .filter(f => not account_names.anyIt(it == f))
 
   return unregistered_students
 
 block test:
-  let service = ApplicationService(vec_container: createVecCntainer())
-  assert @["B学生", "C学生"] == service.getUnregisteredStudentName()
+  let used_services_container = createVecContainer()
+  let student_service = StudentService(used_services_container: used_services_container)
+  assert @["B学生", "C学生"] == student_service.getUnregisteredStudentName()

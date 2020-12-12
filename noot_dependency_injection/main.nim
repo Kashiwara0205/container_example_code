@@ -24,7 +24,6 @@ type StudentRecord = ref object
   pref: string
 
 type StudentService = ref object
-  account_service: AccoutService
 
 method getAll*(service: StudentService): seq[StudentRecord] {.base.} =
   let students = @[
@@ -36,15 +35,15 @@ method getAll*(service: StudentService): seq[StudentRecord] {.base.} =
   return students
 
 method getUnregisteredStudentName(student_service :StudentService): seq[string] {.base.} =
-  let account_names = student_service.account_service.getAll().map(m => m.name)
+  let account_service = AccoutService()
+  let account_names = account_service.getAll().map(m => m.name)
   let unregistered_students = 
     student_service.getAll()
-                    .map(m => m.name)
-                    .filter(f => not account_names.anyIt(it == f))
+                   .map(m => m.name)
+                   .filter(f => not account_names.anyIt(it == f))
 
   return unregistered_students
 
 block test:
-  let account_service = AccoutService()
-  let student_service = StudentService(account_service: account_service)
+  let student_service = StudentService()
   assert @["B学生", "C学生"] == student_service.getUnregisteredStudentName()
